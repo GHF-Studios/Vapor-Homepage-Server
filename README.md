@@ -22,6 +22,11 @@ Expected public route behind the root reverse proxy:
 
 Expected to remain mostly stateless.
 
+## Runtime binding
+
+The service binds to `127.0.0.1:7111` by default. Deployment tooling may
+override this with `VAPOR_HOMEPAGE_BIND`.
+
 ## Non-goals
 
 - identity authority;
