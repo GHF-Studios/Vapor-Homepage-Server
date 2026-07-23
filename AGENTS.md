@@ -6,4 +6,3 @@ Keep this service focused on public homepage/legal/product content.
 - Do not commit secrets.
 - Keep the service independently rebuildable.
 - Route integration belongs to `Vapor-Server-Root`.
-

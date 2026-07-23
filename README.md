@@ -28,4 +28,3 @@ Expected to remain mostly stateless.
 - diagnostics storage;
 - docs artifact publishing;
 - deployment orchestration.
-
