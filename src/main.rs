@@ -1,86 +1,36 @@
+use axum::response::Html;
+use axum::routing::get;
+use axum::Router;
 use std::env;
-use std::io::{self, Read, Write};
-use std::net::{TcpListener, TcpStream};
-use std::time::Duration;
+use tokio::net::TcpListener;
 
 const DEFAULT_BIND: &str = "127.0.0.1:7111";
 
-fn main() -> io::Result<()> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bind = env::var("VAPOR_HOMEPAGE_BIND").unwrap_or_else(|_| DEFAULT_BIND.to_string());
-    let listener = TcpListener::bind(&bind)?;
-    eprintln!("vapor-homepage-server listening on {bind}");
+    let listener = TcpListener::bind(&bind).await?;
 
-    for stream in listener.incoming() {
-        match stream {
-            Ok(mut stream) => {
-                if let Err(error) = handle_connection(&mut stream) {
-                    eprintln!("request failed: {error}");
-                }
-            }
-            Err(error) => eprintln!("connection failed: {error}"),
-        }
-    }
+    let app = Router::new()
+        .route("/", get(home_page))
+        .route("/index.html", get(home_page))
+        .route("/healthz", get(healthz))
+        .route("/license", get(license_page))
+        .route("/impressum", get(impressum_page));
+
+    eprintln!("vapor-homepage-server listening on {bind}");
+    axum::serve(listener, app).await?;
 
     Ok(())
 }
 
-fn handle_connection(stream: &mut TcpStream) -> io::Result<()> {
-    stream.set_read_timeout(Some(Duration::from_secs(2)))?;
-    let request = read_request_line(stream)?;
-    let Some((method, path)) = request else {
-        return Ok(());
-    };
-
-    match (method.as_str(), path.as_str()) {
-        ("GET", "/healthz") => respond_text(stream, "200 OK", "ok\n"),
-        ("GET", "/license") => respond_html(stream, "200 OK", license_page()),
-        ("GET", "/impressum") => respond_html(stream, "200 OK", impressum_page()),
-        ("GET", "/") | ("GET", "/index.html") => respond_html(stream, "200 OK", home_page()),
-        _ => respond_text(stream, "404 Not Found", "not found\n"),
-    }
+async fn healthz() -> &'static str {
+    "ok\n"
 }
 
-fn read_request_line(stream: &mut TcpStream) -> io::Result<Option<(String, String)>> {
-    let mut buffer = [0_u8; 4096];
-    let read = stream.read(&mut buffer)?;
-    if read == 0 {
-        return Ok(None);
-    }
-
-    let text = String::from_utf8_lossy(&buffer[..read]);
-    let Some(line) = text.lines().next() else {
-        return Ok(None);
-    };
-
-    let mut parts = line.split_whitespace();
-    let Some(method) = parts.next() else {
-        return Ok(None);
-    };
-    let Some(path) = parts.next() else {
-        return Ok(None);
-    };
-
-    Ok(Some((method.to_string(), path.to_string())))
-}
-
-fn respond_text(stream: &mut TcpStream, status: &str, body: &str) -> io::Result<()> {
-    respond(stream, status, "text/plain; charset=utf-8", body)
-}
-
-fn respond_html(stream: &mut TcpStream, status: &str, body: &str) -> io::Result<()> {
-    respond(stream, status, "text/html; charset=utf-8", body)
-}
-
-fn respond(stream: &mut TcpStream, status: &str, content_type: &str, body: &str) -> io::Result<()> {
-    write!(
-        stream,
-        "HTTP/1.1 {status}\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
-        body.len()
-    )
-}
-
-fn home_page() -> &'static str {
-    r#"<!doctype html>
+async fn home_page() -> Html<&'static str> {
+    Html(
+        r#"<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -99,11 +49,13 @@ fn home_page() -> &'static str {
   </main>
 </body>
 </html>
-"#
+"#,
+    )
 }
 
-fn license_page() -> &'static str {
-    r#"<!doctype html>
+async fn license_page() -> Html<&'static str> {
+    Html(
+        r#"<!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><title>Vapor License</title></head>
 <body>
@@ -113,11 +65,13 @@ fn license_page() -> &'static str {
   </main>
 </body>
 </html>
-"#
+"#,
+    )
 }
 
-fn impressum_page() -> &'static str {
-    r#"<!doctype html>
+async fn impressum_page() -> Html<&'static str> {
+    Html(
+        r#"<!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><title>Impressum</title></head>
 <body>
@@ -127,5 +81,6 @@ fn impressum_page() -> &'static str {
   </main>
 </body>
 </html>
-"#
+"#,
+    )
 }

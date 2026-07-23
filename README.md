@@ -2,6 +2,8 @@
 
 Public homepage service for Vapor.
 
+Initial implementation uses Axum/Tokio.
+
 ## Responsibility
 
 - landing page;
