@@ -18,27 +18,140 @@ async fn healthz() -> &'static str {
 
 async fn home_page() -> Html<&'static str> {
     Html(
-        r#"<!doctype html>
+        r##"<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vapor</title>
+  <meta name="description" content="Vapor is an independent platform for discovering, installing, and managing game ecosystems, content, and tools.">
+  <meta name="theme-color" content="#10161d">
+  <title>Vapor · Game ecosystems, managed</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #10161d; color: #eef3f7; font-synthesis: none; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 54% -22%, #294346 0, #10161d 55%); }
+    a { color: #a9d8cb; }
+    a:focus-visible { outline: 2px solid #9fe1ce; outline-offset: 4px; border-radius: 3px; }
+    main { width: min(1080px, calc(100% - 40px)); margin: 0 auto; padding: 26px 0 32px; }
+    .topbar { display: flex; align-items: center; gap: 28px; min-height: 40px; }
+    .brand { margin-right: auto; color: #f0f5f7; font-size: 1.04rem; font-weight: 780; letter-spacing: .035em; text-decoration: none; }
+    .topbar nav { display: flex; align-items: center; gap: 22px; }
+    .topbar nav a, footer a { color: #b7c5cb; font-size: .9rem; text-decoration: none; }
+    .topbar nav a:hover, footer a:hover { color: #fff; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(230px, .75fr); align-items: center; gap: 52px; padding: clamp(64px, 11vw, 124px) 0 88px; }
+    .eyebrow { color: #9fe1ce; font-size: .76rem; font-weight: 750; letter-spacing: .17em; text-transform: uppercase; }
+    h1 { max-width: 730px; margin: 13px 0 19px; font-size: clamp(3rem, 8vw, 5.65rem); letter-spacing: -.065em; line-height: .96; }
+    .lead { max-width: 650px; margin: 0; color: #c2cfd4; font-size: clamp(1.05rem, 2vw, 1.22rem); line-height: 1.7; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-top: 28px; }
+    .button { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; padding: 0 19px; border-radius: 7px; background: #9fe1ce; color: #10201d; font-weight: 760; text-decoration: none; }
+    .button:hover { background: #b8f0df; }
+    .secondary { font-size: .92rem; font-weight: 650; text-decoration: none; }
+    .orbit { position: relative; display: grid; min-height: 260px; place-items: center; }
+    .orbit::before, .orbit::after { position: absolute; content: ""; border: 1px solid rgba(159, 225, 206, .2); border-radius: 50%; }
+    .orbit::before { width: 244px; height: 244px; }
+    .orbit::after { width: 180px; height: 180px; }
+    .core { z-index: 1; display: grid; width: 94px; height: 94px; place-items: center; border: 1px solid rgba(159, 225, 206, .7); border-radius: 22px; background: linear-gradient(145deg, #284441, #18252a); color: #aaf0dc; font-size: 2rem; font-weight: 800; box-shadow: 0 0 70px rgba(91, 190, 161, .17); }
+    .orbit-label { position: absolute; z-index: 2; padding: 6px 10px; border: 1px solid #34464a; border-radius: 999px; background: #151f24; color: #c5d0d4; font-size: .72rem; font-weight: 650; }
+    .label-tools { top: 19px; left: calc(50% - 31px); }
+    .label-games { right: 2px; top: 45%; }
+    .label-content { bottom: 17px; left: calc(50% - 44px); }
+    .intro-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .card { min-height: 166px; padding: 21px; border: 1px solid #34434a; border-radius: 11px; background: rgba(20, 29, 35, .88); }
+    .card h2 { margin: 0 0 10px; font-size: 1rem; letter-spacing: -.015em; }
+    .card p { margin: 0; color: #b4c2c8; font-size: .91rem; line-height: 1.65; }
+    .local-note { display: grid; grid-template-columns: auto 1fr; gap: 15px; margin-top: 15px; padding: 20px 22px; border-left: 3px solid #9fe1ce; background: rgba(159, 225, 206, .06); }
+    .local-mark { color: #9fe1ce; font-size: 1.1rem; }
+    .local-note h2 { margin: 0 0 6px; font-size: .95rem; }
+    .local-note p { margin: 0; color: #b8c6cb; font-size: .88rem; line-height: 1.6; }
+    .bottom-cta { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 78px 0 58px; padding: 26px 28px; border: 1px solid #34434a; border-radius: 11px; background: rgba(20, 29, 35, .78); }
+    .bottom-cta h2 { margin: 0 0 5px; font-size: 1.2rem; }
+    .bottom-cta p { margin: 0; color: #aebdc3; font-size: .9rem; line-height: 1.5; }
+    footer { display: flex; flex-wrap: wrap; gap: 20px; padding: 18px 0 8px; border-top: 1px solid #2d3a40; }
+    footer .copyright { margin-right: auto; color: #73848b; font-size: .83rem; }
+    @media (max-width: 720px) {
+      .topbar { align-items: flex-start; flex-wrap: wrap; gap: 14px; }
+      .topbar nav { width: 100%; justify-content: space-between; gap: 10px; }
+      .hero { grid-template-columns: 1fr; gap: 18px; padding: 70px 0 48px; }
+      .orbit { min-height: 200px; }
+      .orbit::before { width: 190px; height: 190px; }
+      .orbit::after { width: 140px; height: 140px; }
+      .intro-grid { grid-template-columns: 1fr; }
+      .card { min-height: 0; }
+      .bottom-cta { align-items: flex-start; flex-direction: column; margin: 48px 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+  </style>
 </head>
 <body>
   <main>
-    <h1>Vapor</h1>
-    <p>Vapor is an independent platform for discovering, installing, and managing game content and tools.</p>
-    <nav>
-      <a href="/downloads">Download Vapor</a>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Vapor home">VAPOR</a>
+      <nav aria-label="Main navigation">
+        <a href="/downloads">Get Vapor</a>
+        <a href="/docs/">Documentation</a>
+        <a href="/license">License</a>
+      </nav>
+    </header>
+
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <span class="eyebrow">One platform · many ecosystems</span>
+        <h1 id="hero-title">Your games.<br>One place to build.</h1>
+        <p class="lead">Vapor brings game ecosystems, content, and creator tools into one independent platform—so each project can manage its own way of installing, updating, and working with content.</p>
+        <div class="actions">
+          <a class="button" href="/downloads">Get Vapor <span aria-hidden="true">&nbsp;→</span></a>
+          <a class="secondary" href="/docs/">Explore the documentation</a>
+        </div>
+      </div>
+      <div class="orbit" aria-hidden="true">
+        <span class="orbit-label label-tools">TOOLS</span>
+        <span class="orbit-label label-games">GAMES</span>
+        <span class="orbit-label label-content">CONTENT</span>
+        <div class="core">V</div>
+      </div>
+    </section>
+
+    <section class="intro-grid" aria-label="What Vapor does">
+      <article class="card">
+        <h2>A home for ecosystems</h2>
+        <p>Engines and games can define how their own content is found, mounted, and managed, while sharing one Vapor runtime.</p>
+      </article>
+      <article class="card">
+        <h2>Built for players and creators</h2>
+        <p>Use supported content as a player, or install the developer tools for the ecosystems you work on.</p>
+      </article>
+      <article class="card">
+        <h2>Clear ownership</h2>
+        <p>Each ecosystem controls its own packages and lifecycle. Vapor does not turn every game into the same kind of mod.</p>
+      </article>
+    </section>
+
+    <aside class="local-note" aria-labelledby="local-title">
+      <span class="local-mark" aria-hidden="true">◆</span>
+      <div>
+        <h2 id="local-title">Your game files stay yours</h2>
+        <p>Vapor distributes its own runtime and authorized ecosystem content. Commercial game files must come from your own legitimate purchase or installation; they are not included in Vapor downloads.</p>
+      </div>
+    </aside>
+
+    <section class="bottom-cta" aria-labelledby="start-title">
+      <div>
+        <h2 id="start-title">Start with Vapor</h2>
+        <p>Choose your setup and see current download availability for Windows and Linux.</p>
+      </div>
+      <a class="button" href="/downloads">View setup options <span aria-hidden="true">&nbsp;→</span></a>
+    </section>
+
+    <footer>
+      <span class="copyright">Vapor · an independent platform</span>
       <a href="/docs/">Docs</a>
       <a href="/license">License</a>
       <a href="/impressum">Impressum</a>
-    </nav>
+    </footer>
   </main>
 </body>
 </html>
-"#,
+"##,
     )
 }
 
