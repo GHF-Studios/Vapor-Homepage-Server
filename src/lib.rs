@@ -130,7 +130,7 @@ async fn home_page() -> Html<&'static str> {
       <span class="local-mark" aria-hidden="true">◆</span>
       <div>
         <h2 id="local-title">Your game files stay yours</h2>
-        <p>Vapor distributes its own runtime and authorized ecosystem content. Commercial game files must come from your own legitimate purchase or installation; they are not included in Vapor downloads.</p>
+        <p>Commercial game files must come from your own legitimate purchase or installation; they are never included in Vapor downloads. Vapor only distributes runtime files and authorized ecosystem content.</p>
       </div>
     </aside>
 
