@@ -152,6 +152,7 @@ async fn home_page() -> Html<&'static str> {
       <a href="/docs/">Docs</a>
       <a href="/license">License</a>
       <a href="/impressum">Impressum</a>
+      <a href="/operator/login">Operator sign-in</a>
     </footer>
   </main>
 </body>
@@ -375,4 +376,25 @@ async fn impressum_page() -> Html<&'static str> {
 </html>
 "#,
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::app_router;
+    use axum::{body::Body, http::Request};
+    use tower::ServiceExt;
+
+    #[tokio::test]
+    async fn homepage_has_a_discreet_operator_sign_in_entry() {
+        let response = app_router()
+            .oneshot(Request::get("/").body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+        assert_eq!(response.status(), axum::http::StatusCode::OK);
+        let body = axum::body::to_bytes(response.into_body(), 16 * 1024)
+            .await
+            .unwrap();
+        let html = std::str::from_utf8(&body).unwrap();
+        assert!(html.contains("href=\"/operator/login\">Operator sign-in</a>"));
+    }
 }
