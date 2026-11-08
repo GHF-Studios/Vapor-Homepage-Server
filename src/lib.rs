@@ -1,8 +1,12 @@
 use axum::response::Html;
 use axum::routing::get;
 use axum::Router;
+
+mod dashboard;
+
 pub fn app_router() -> Router {
     Router::new()
+        .merge(dashboard::router())
         .route("/", get(home_page))
         .route("/index.html", get(home_page))
         .route("/healthz", get(healthz))
@@ -87,6 +91,7 @@ async fn home_page() -> Html<&'static str> {
     <header class="topbar">
       <a class="brand" href="/" aria-label="Vapor home">VAPOR</a>
       <nav aria-label="Main navigation">
+        <a href="/dashboard">Your Projects</a>
         <a href="/downloads">Get Vapor</a>
         <a href="/docs/">Documentation</a>
         <a href="/license">License</a>
@@ -216,6 +221,7 @@ async fn downloads_page() -> Html<&'static str> {
   <main>
     <nav aria-label="Main navigation">
       <a class="brand" href="/">Vapor</a>
+      <a href="/dashboard">Your Projects</a>
       <a href="/docs/">Documentation</a>
       <a href="/license">License</a>
     </nav>
