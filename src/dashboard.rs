@@ -28,7 +28,7 @@ const STYLE: &str = r#"<style>
 </style>"#;
 
 const DASHBOARD_BODY: &str = r#"
-<header class="topbar"><a class="brand" href="/">VAPOR</a><nav aria-label="Main navigation"><a href="/downloads">Get Vapor</a><a href="/docs/">Documentation</a><a href="/logout">Sign out</a></nav></header>
+<header class="topbar"><a class="brand" href="/">VAPOR</a><nav aria-label="Main navigation"><a href="/downloads">Get Vapor</a><a href="/docs/">Documentation</a><a href="/operator/login" aria-label="Platform operator sign-in">Operator access</a><a href="/logout">Sign out</a></nav></header>
 <section class="heading"><span class="eyebrow">Your workspace</span><h1>Your Projects</h1><p class="lead">Projects you can access, with their own content and tools.</p></section>
 <section aria-live="polite" aria-busy="true"><p id="loading" class="panel state">Loading your Projects…</p><div id="signed-out" class="panel state" hidden><strong>Sign in to continue.</strong><br><a href="/login">Sign in to Vapor</a></div><div id="empty" class="panel state empty" hidden><strong>No Projects yet.</strong><br>When you’re added to a Project, it will appear here.</div><div id="unavailable" class="panel state error" hidden><strong>Projects are temporarily unavailable.</strong><br>Try again in a moment. Your access has not changed.<br><button class="button" id="retry" type="button">Try again</button></div><ul id="projects" class="project-list" hidden></ul></section>
 <script>
@@ -40,7 +40,7 @@ document.getElementById('retry').addEventListener('click',loadProjects);loadProj
 "#;
 
 const PROJECT_BODY: &str = r#"
-<header class="topbar"><a class="brand" href="/">VAPOR</a><nav aria-label="Main navigation"><a href="/dashboard">Your Projects</a><a href="/docs/">Documentation</a><a href="/logout">Sign out</a></nav></header>
+<header class="topbar"><a class="brand" href="/">VAPOR</a><nav aria-label="Main navigation"><a href="/dashboard">Your Projects</a><a href="/docs/">Documentation</a><a href="/operator/login" aria-label="Platform operator sign-in">Operator access</a><a href="/logout">Sign out</a></nav></header>
 <section class="heading"><span class="eyebrow">Project workspace</span><h1 id="title">Loading Project…</h1><p id="summary" class="lead"></p></section>
 <section aria-live="polite"><p id="loading" class="panel state">Checking Project access…</p><div id="signed-out" class="panel state" hidden><strong>Sign in to continue.</strong><br><a href="/login">Sign in to Vapor</a></div><div id="unavailable" class="panel state error" hidden><strong>This Project is unavailable.</strong><br>It may not exist, or your access may have changed.</div><div id="loaded" class="panel state" hidden><div class="workspace-meta"><span>Project ID: <code id="project-id"></code></span><span>Your access: <strong id="project-role"></strong></span><span>Status: <strong id="project-state"></strong></span></div><a class="back" href="/dashboard">← Back to your Projects</a></div></section>
 <script>
