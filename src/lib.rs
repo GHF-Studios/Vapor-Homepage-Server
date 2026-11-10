@@ -2,11 +2,8 @@ use axum::response::Html;
 use axum::routing::get;
 use axum::Router;
 
-mod dashboard;
-
 pub fn app_router() -> Router {
     Router::new()
-        .merge(dashboard::router())
         .route("/", get(home_page))
         .route("/index.html", get(home_page))
         .route("/healthz", get(healthz))
@@ -31,57 +28,59 @@ async fn home_page() -> Html<&'static str> {
   <meta name="theme-color" content="#10161d">
   <title>Vapor · Game ecosystems, managed</title>
   <style>
-    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #10161d; color: #eef3f7; font-synthesis: none; }
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #101415; color: #eef2ef; font-synthesis: none; }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 54% -22%, #294346 0, #10161d 55%); }
-    a { color: #a9d8cb; }
-    a:focus-visible { outline: 2px solid #9fe1ce; outline-offset: 4px; border-radius: 3px; }
-    main { width: min(1080px, calc(100% - 40px)); margin: 0 auto; padding: 26px 0 32px; }
-    .topbar { display: flex; align-items: center; gap: 28px; min-height: 40px; }
-    .brand { margin-right: auto; color: #f0f5f7; font-size: 1.04rem; font-weight: 780; letter-spacing: .035em; text-decoration: none; }
-    .topbar nav { display: flex; align-items: center; gap: 22px; }
-    .topbar nav a, footer a { color: #b7c5cb; font-size: .9rem; text-decoration: none; }
+    body { margin: 0; min-height: 100vh; background: #101415; }
+    a { color: #a7d5c5; }
+    a:focus-visible { outline: 2px solid #9fe1ce; outline-offset: 4px; border-radius: 4px; }
+    main { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 24px 0 32px; }
+    .topbar { display: flex; align-items: center; gap: 24px; min-height: 40px; }
+    .brand { margin-right: auto; color: #eef2ef; font-size: 1rem; font-weight: 600; text-decoration: none; }
+    .topbar nav { display: flex; align-items: center; gap: 20px; }
+    .topbar nav a, footer a { color: #b8c2bd; font-size: .9rem; text-decoration: none; }
     .topbar nav a:hover, footer a:hover { color: #fff; }
-    .hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(230px, .75fr); align-items: center; gap: 52px; padding: clamp(64px, 11vw, 124px) 0 88px; }
-    .eyebrow { color: #9fe1ce; font-size: .76rem; font-weight: 750; letter-spacing: .17em; text-transform: uppercase; }
-    h1 { max-width: 730px; margin: 13px 0 19px; font-size: clamp(3rem, 8vw, 5.65rem); letter-spacing: -.065em; line-height: .96; }
-    .lead { max-width: 650px; margin: 0; color: #c2cfd4; font-size: clamp(1.05rem, 2vw, 1.22rem); line-height: 1.7; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(300px, .92fr); align-items: center; gap: 48px; padding: 88px 0 72px; }
+    .eyebrow { color: #b6c2bb; font-size: .84rem; font-weight: 500; }
+    h1 { max-width: 690px; margin: 12px 0 20px; font-size: clamp(2.7rem, 6.4vw, 4.6rem); font-weight: 500; letter-spacing: -.045em; line-height: 1.03; }
+    .lead { max-width: 640px; margin: 0; color: #bdc7c2; font-size: clamp(1rem, 1.8vw, 1.15rem); line-height: 1.6; }
     .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-top: 28px; }
-    .button { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; padding: 0 19px; border-radius: 7px; background: #9fe1ce; color: #10201d; font-weight: 760; text-decoration: none; }
-    .button:hover { background: #b8f0df; }
-    .secondary { font-size: .92rem; font-weight: 650; text-decoration: none; }
-    .orbit { position: relative; display: grid; min-height: 260px; place-items: center; }
-    .orbit::before, .orbit::after { position: absolute; content: ""; border: 1px solid rgba(159, 225, 206, .2); border-radius: 50%; }
-    .orbit::before { width: 244px; height: 244px; }
-    .orbit::after { width: 180px; height: 180px; }
-    .core { z-index: 1; display: grid; width: 94px; height: 94px; place-items: center; border: 1px solid rgba(159, 225, 206, .7); border-radius: 22px; background: linear-gradient(145deg, #284441, #18252a); color: #aaf0dc; font-size: 2rem; font-weight: 800; box-shadow: 0 0 70px rgba(91, 190, 161, .17); }
-    .orbit-label { position: absolute; z-index: 2; padding: 6px 10px; border: 1px solid #34464a; border-radius: 999px; background: #151f24; color: #c5d0d4; font-size: .72rem; font-weight: 650; }
-    .label-tools { top: 19px; left: calc(50% - 31px); }
-    .label-games { right: 2px; top: 45%; }
-    .label-content { bottom: 17px; left: calc(50% - 44px); }
-    .intro-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-    .card { min-height: 166px; padding: 21px; border: 1px solid #34434a; border-radius: 11px; background: rgba(20, 29, 35, .88); }
-    .card h2 { margin: 0 0 10px; font-size: 1rem; letter-spacing: -.015em; }
-    .card p { margin: 0; color: #b4c2c8; font-size: .91rem; line-height: 1.65; }
-    .local-note { display: grid; grid-template-columns: auto 1fr; gap: 15px; margin-top: 15px; padding: 20px 22px; border-left: 3px solid #9fe1ce; background: rgba(159, 225, 206, .06); }
-    .local-mark { color: #9fe1ce; font-size: 1.1rem; }
-    .local-note h2 { margin: 0 0 6px; font-size: .95rem; }
-    .local-note p { margin: 0; color: #b8c6cb; font-size: .88rem; line-height: 1.6; }
-    .bottom-cta { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 78px 0 58px; padding: 26px 28px; border: 1px solid #34434a; border-radius: 11px; background: rgba(20, 29, 35, .78); }
-    .bottom-cta h2 { margin: 0 0 5px; font-size: 1.2rem; }
-    .bottom-cta p { margin: 0; color: #aebdc3; font-size: .9rem; line-height: 1.5; }
-    footer { display: flex; flex-wrap: wrap; gap: 20px; padding: 18px 0 8px; border-top: 1px solid #2d3a40; }
-    footer .copyright { margin-right: auto; color: #73848b; font-size: .83rem; }
+    .button { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 0 16px; border: 1px solid #9fe1ce; border-radius: 8px; background: #9fe1ce; color: #13201b; font-weight: 600; text-decoration: none; }
+    .button:hover { background: #b2eadb; }
+    .secondary { font-size: .92rem; font-weight: 500; text-decoration: none; }
+    .mount-preview { padding: 20px; border: 1px solid #35413b; border-radius: 14px; background: #171c19; }
+    .mount-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #303a34; }
+    .mount-head p, .mount-head h2 { margin: 0; }
+    .mount-head p { color: #9daaa2; font-size: .8rem; }
+    .mount-head h2 { margin-top: 4px; font-size: 1.05rem; font-weight: 550; }
+    .mount-state { color: #a7d5c5; font-size: .78rem; white-space: nowrap; }
+    .manifest-row { display: flex; align-items: center; gap: 10px; margin: 16px 0 10px; padding: 10px 12px; border: 1px solid #35413b; border-radius: 8px; background: #1d2420; }
+    .manifest-mark { width: 8px; height: 8px; border-radius: 2px; background: #9fe1ce; }
+    .manifest-row code, .target-row code { color: #d3ddd7; font: 12px/1.4 ui-monospace, "Cascadia Code", monospace; }
+    .target-list { display: grid; gap: 6px; }
+    .target-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; padding: 0 12px; border: 1px solid #303a34; border-radius: 8px; }
+    .target-name { color: #b8c2bd; font-size: .84rem; }
+    .mount-foot { margin: 14px 0 0; color: #9daaa2; font-size: .8rem; line-height: 1.5; }
+    .intro-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .card { min-height: 148px; padding: 20px; border: 1px solid #303a34; border-radius: 12px; background: #171c19; }
+    .card h2 { margin: 0 0 8px; font-size: 1rem; font-weight: 550; }
+    .card p { margin: 0; color: #b8c2bd; font-size: .9rem; line-height: 1.55; }
+    .local-note { margin-top: 12px; padding: 16px 18px; border: 1px solid #303a34; border-radius: 10px; background: #151a17; }
+    .local-note h2 { margin: 0 0 4px; font-size: .94rem; font-weight: 550; }
+    .local-note p { margin: 0; color: #b8c2bd; font-size: .86rem; line-height: 1.55; }
+    .bottom-cta { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 40px 0 44px; padding: 20px 22px; border: 1px solid #303a34; border-radius: 12px; background: #171c19; }
+    .bottom-cta h2 { margin: 0 0 4px; font-size: 1.1rem; font-weight: 550; }
+    .bottom-cta p { margin: 0; color: #b8c2bd; font-size: .9rem; line-height: 1.5; }
+    footer { display: flex; flex-wrap: wrap; gap: 18px; padding: 16px 0 8px; border-top: 1px solid #303a34; }
+    footer .copyright { margin-right: auto; color: #9daaa2; font-size: .82rem; }
     @media (max-width: 720px) {
       .topbar { align-items: flex-start; flex-wrap: wrap; gap: 14px; }
       .topbar nav { width: 100%; justify-content: space-between; gap: 10px; }
-      .hero { grid-template-columns: 1fr; gap: 18px; padding: 70px 0 48px; }
-      .orbit { min-height: 200px; }
-      .orbit::before { width: 190px; height: 190px; }
-      .orbit::after { width: 140px; height: 140px; }
+      main { width: min(100% - 32px, 560px); }
+      .hero { grid-template-columns: 1fr; gap: 28px; padding: 56px 0 40px; }
       .intro-grid { grid-template-columns: 1fr; }
       .card { min-height: 0; }
-      .bottom-cta { align-items: flex-start; flex-direction: column; margin: 48px 0; }
+      .bottom-cta { align-items: flex-start; flex-direction: column; margin: 28px 0; }
+      .target-row { align-items: flex-start; flex-direction: column; justify-content: center; gap: 2px; padding: 8px 10px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
   </style>
@@ -100,42 +99,44 @@ async fn home_page() -> Html<&'static str> {
 
     <section class="hero" aria-labelledby="hero-title">
       <div>
-        <span class="eyebrow">One platform · many ecosystems</span>
-        <h1 id="hero-title">Your games.<br>One place to build.</h1>
-        <p class="lead">Vapor brings game ecosystems, content, and creator tools into one independent platform—so each project can manage its own way of installing, updating, and working with content.</p>
+        <span class="eyebrow">A standalone runtime for game ecosystems</span>
+        <h1 id="hero-title">Install the runtime.<br>Mount the ecosystem.</h1>
+        <p class="lead">Vapor installs and manages games, tools, and content. Each ecosystem defines its own packages and lifecycle; licensed game files stay on your machine.</p>
         <div class="actions">
-          <a class="button" href="/downloads">Get Vapor <span aria-hidden="true">&nbsp;→</span></a>
+          <a class="button" href="/downloads">Get Vapor</a>
           <a class="secondary" href="/docs/">Explore the documentation</a>
         </div>
       </div>
-      <div class="orbit" aria-hidden="true">
-        <span class="orbit-label label-tools">TOOLS</span>
-        <span class="orbit-label label-games">GAMES</span>
-        <span class="orbit-label label-content">CONTENT</span>
-        <div class="core">V</div>
+      <div class="mount-preview" aria-label="Example of the Loo Cast Steam product mount">
+        <div class="mount-head"><div><p>Steam product mount</p><h2>Loo Cast Packagepack</h2></div><span class="mount-state">First-party</span></div>
+        <div class="manifest-row"><span class="manifest-mark" aria-hidden="true"></span><code>Packagepack.vapor.toml</code></div>
+        <div class="target-list">
+          <div class="target-row"><span class="target-name">Linux · x86_64</span><code>loo-cast-packagepack</code></div>
+          <div class="target-row"><span class="target-name">Windows · x86_64</span><code>loo-cast-packagepack.exe</code></div>
+        </div>
+        <p class="mount-foot">Vapor and its tools remain in Vapor home, separate from the Steam product.</p>
       </div>
     </section>
 
     <section class="intro-grid" aria-label="What Vapor does">
       <article class="card">
-        <h2>A home for ecosystems</h2>
-        <p>Engines and games can define how their own content is found, mounted, and managed, while sharing one Vapor runtime.</p>
+        <h2>Use supported games</h2>
+        <p>Install Vapor once, then add games you own and manage the content their ecosystem supports.</p>
       </article>
       <article class="card">
-        <h2>Built for players and creators</h2>
-        <p>Use supported content as a player, or install the developer tools for the ecosystems you work on.</p>
+        <h2>Build across targets</h2>
+        <p>The Developer setup includes Vapor’s pinned Rust toolchain and the Linux and Windows build tools.</p>
       </article>
       <article class="card">
-        <h2>Clear ownership</h2>
-        <p>Each ecosystem controls its own packages and lifecycle. Vapor does not turn every game into the same kind of mod.</p>
+        <h2>Keep ownership clear</h2>
+        <p>Games supply their licensed files locally. Vapor manages the runtime and only distributes authorized content.</p>
       </article>
     </section>
 
     <aside class="local-note" aria-labelledby="local-title">
-      <span class="local-mark" aria-hidden="true">◆</span>
       <div>
         <h2 id="local-title">Your game files stay yours</h2>
-        <p>Commercial game files must come from your own legitimate purchase or installation; they are never included in Vapor downloads. Vapor only distributes runtime files and authorized ecosystem content.</p>
+        <p>Commercial game files come from your own installation. They are not included in Vapor downloads or hosted as community content.</p>
       </div>
     </aside>
 
@@ -144,7 +145,7 @@ async fn home_page() -> Html<&'static str> {
         <h2 id="start-title">Start with Vapor</h2>
         <p>Choose your setup and see current download availability for Windows and Linux.</p>
       </div>
-      <a class="button" href="/downloads">View setup options <span aria-hidden="true">&nbsp;→</span></a>
+      <a class="button" href="/downloads">View setup options</a>
     </section>
 
     <footer>
@@ -174,43 +175,43 @@ async fn downloads_page() -> Html<&'static str> {
   <style>
     :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #10161d; color: #eef3f7; font-synthesis: none; }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 50% -24%, #263b3d 0, #10161d 54%); }
+    body { margin: 0; min-height: 100vh; background: #101415; }
     a { color: #a9d8cb; }
     a:focus-visible, button:focus-visible { outline: 2px solid #9fe1ce; outline-offset: 3px; }
     main { width: min(1040px, calc(100% - 36px)); margin: 0 auto; padding: 28px 0 64px; }
     nav { display: flex; align-items: center; gap: 22px; padding-bottom: 54px; }
-    .brand { margin-right: auto; color: #eef3f7; font-weight: 750; letter-spacing: .02em; text-decoration: none; }
+    .brand { margin-right: auto; color: #eef3f7; font-weight: 500; text-decoration: none; }
     nav a:not(.brand) { color: #bac7ce; text-decoration: none; font-size: .94rem; }
     nav a:hover { color: #fff; }
     .hero { max-width: 760px; margin-bottom: 38px; }
-    .eyebrow { color: #9fe1ce; font-size: .78rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
-    h1 { margin: 12px 0 16px; font-size: clamp(2.8rem, 8vw, 5.2rem); letter-spacing: -.06em; line-height: .98; }
+    .eyebrow { color: #b8c2bd; font-size: .86rem; font-weight: 500; }
+    h1 { margin: 12px 0 16px; font-size: clamp(2.8rem, 8vw, 5.2rem); font-weight: 500; letter-spacing: -.04em; line-height: 1.02; }
     h2 { margin: 0; font-size: 1.05rem; letter-spacing: -.01em; }
     h3 { margin: 0 0 8px; font-size: .98rem; }
     .lead { max-width: 700px; margin: 0; color: #c3cfd4; font-size: 1.12rem; line-height: 1.65; }
     .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 0 0 14px; }
     .section-heading p { margin: 0; color: #91a1a8; font-size: .86rem; }
-    .release-grid, .setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-    .release, .setup, .steps { border: 1px solid #34434a; border-radius: 12px; background: rgba(20, 29, 35, .91); }
-    .release { min-height: 200px; padding: 20px; }
-    .release-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-    .platform { color: #92a3aa; font-size: .78rem; font-weight: 650; }
+    .release-grid, .setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .release, .setup, .steps { border: 1px solid #303a34; border-radius: 10px; background: #171c19; }
+    .release { min-height: 168px; padding: 16px; }
+    .release-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .platform { color: #a1aaa5; font-size: .8rem; font-weight: 500; }
     .release-status { min-height: 42px; margin: 0 0 14px; color: #bbc8ce; line-height: 1.5; }
-    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 16px; border: 0; border-radius: 7px; background: #9fe1ce; color: #10201d; font-weight: 750; text-decoration: none; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; border: 1px solid #9fe1ce; border-radius: 8px; background: #9fe1ce; color: #10201d; font-weight: 500; text-decoration: none; }
     .button:hover { background: #b8f0df; }
     .button[hidden] { display: none; }
     .release-details { margin-top: 12px; color: #94a5ac; font-size: .82rem; }
     .release-details summary { width: fit-content; cursor: pointer; }
     .release-details p { overflow-wrap: anywhere; line-height: 1.5; }
     .release-details a { margin-right: 12px; }
-    .setup-section, .start-section { margin-top: 38px; }
-    .setup { padding: 20px; }
+    .setup-section, .start-section { margin-top: 32px; }
+    .setup { padding: 16px; }
     .setup p, .steps p { margin: 0; color: #b9c6cc; font-size: .92rem; line-height: 1.6; }
-    .badge { display: inline-flex; margin-bottom: 12px; padding: 4px 8px; border: 1px solid #40565a; border-radius: 999px; color: #a8ddd0; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .badge { display: inline-flex; margin-bottom: 8px; color: #b8c2bd; font-size: .82rem; font-weight: 500; }
     .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; overflow: hidden; }
-    .step { padding: 20px; }
+    .step { padding: 16px; }
     .step + .step { border-left: 1px solid #34434a; }
-    .step-number { display: block; margin-bottom: 12px; color: #9fe1ce; font-size: .76rem; font-weight: 700; letter-spacing: .1em; }
+    .step-number { display: block; margin-bottom: 8px; color: #b8c2bd; font-size: .8rem; font-weight: 500; }
     .step p { color: #b9c6cc; font-size: .9rem; line-height: 1.6; }
     .notice { margin-top: 18px; padding: 14px 16px; border-left: 3px solid #9fe1ce; background: rgba(159, 225, 206, .07); color: #bfccd1; font-size: .9rem; line-height: 1.55; }
     footer { display: flex; gap: 18px; margin-top: 48px; color: #91a1a8; font-size: .88rem; }
@@ -396,5 +397,52 @@ mod tests {
             .unwrap();
         let html = std::str::from_utf8(&body).unwrap();
         assert!(html.contains("href=\"/operator/login\">Operator sign-in</a>"));
+    }
+
+    #[tokio::test]
+    async fn homepage_explains_the_runtime_and_uses_a_product_specific_mount_preview() {
+        let response = app_router()
+            .oneshot(Request::get("/").body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+        let body = axum::body::to_bytes(response.into_body(), 16 * 1024)
+            .await
+            .unwrap();
+        let html = std::str::from_utf8(&body).unwrap();
+
+        assert!(html.contains("Vapor installs and manages games, tools, and content"));
+        assert!(html.contains("Packagepack.vapor.toml"));
+        assert!(html.contains("Steam product mount"));
+        assert!(html.contains("class=\"mount-preview\""));
+        assert!(!html.contains("radial-gradient"));
+        assert!(!html.contains("box-shadow: 0 0 70px"));
+    }
+
+    #[tokio::test]
+    async fn downloads_page_uses_quiet_surfaces_and_sentence_case_labels() {
+        let response = app_router()
+            .oneshot(Request::get("/downloads").body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+        let body = axum::body::to_bytes(response.into_body(), 64 * 1024)
+            .await
+            .unwrap();
+        let html = std::str::from_utf8(&body).unwrap();
+
+        assert!(!html.contains("radial-gradient"));
+        assert!(!html.contains("text-transform: uppercase"));
+        assert!(!html.contains("font-weight: 750"));
+        assert!(html.contains("Choose your platform"));
+    }
+
+    #[tokio::test]
+    async fn account_project_pages_are_not_served_by_the_public_homepage_service() {
+        for path in ["/dashboard", "/projects/ghf-studios/loo-cast"] {
+            let response = app_router()
+                .oneshot(Request::get(path).body(Body::empty()).unwrap())
+                .await
+                .unwrap();
+            assert_eq!(response.status(), axum::http::StatusCode::NOT_FOUND, "{path}");
+        }
     }
 }
