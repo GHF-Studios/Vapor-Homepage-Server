@@ -260,7 +260,7 @@ async fn downloads_page() -> Html<&'static str> {
           </details>
         </article>
       </div>
-      <p class="notice">A download appears only when that platform has a complete release. The current Artifact bundle is an application archive; a guided installer and one-click update flow are still being completed. Do not treat an archive as an installer.</p>
+      <p class="notice">Download the standalone setup app to install or update Vapor. The separate application archive is available for advanced/manual use.</p>
     </section>
 
     <section class="setup-section" aria-labelledby="setup-heading">
@@ -282,11 +282,12 @@ async fn downloads_page() -> Html<&'static str> {
     <section class="start-section" aria-labelledby="start-heading">
       <div class="section-heading"><h2 id="start-heading">After downloading</h2><p>What happens next</p></div>
       <div class="steps">
-        <article class="step"><span class="step-number">01 · DOWNLOAD</span><h3>Choose the right next step</h3><p>The download above is an application archive, not an installer. Use it only if you already know how to work with application archives; otherwise, wait for Vapor’s guided installer. Vapor’s install, updates, and removal are independent of Steam.</p></article>
+        <article class="step"><span class="step-number">01 · DOWNLOAD</span><h3>Run Vapor Setup</h3><p>Vapor Setup installs and updates Vapor in its own user-data location. Steam is not required.</p></article>
         <article class="step"><span class="step-number">02 · CHOOSE</span><h3>Pick Player or Developer</h3><p>Player is for using games and content. When Developer setup is available, it will install the managed tools needed to work on ecosystems.</p></article>
         <article class="step"><span class="step-number">03 · ADD A GAME</span><h3>Connect a local game install</h3><p>Vapor does not distribute Mad Max or Loo Cast game files. You must acquire those products separately; Vapor uses local files and does not upload them.</p></article>
       </div>
       <p class="notice">Loo Cast’s first-party products are intended to come from its local Steam depot. Mad Max is an external game that must already be installed locally. Neither game’s files are part of a Vapor download or release feed.</p>
+      <p class="notice">Linux setup: open your Downloads folder in a terminal, run <code>chmod +x ./vapor-setup</code>, then run <code>./vapor-setup</code>.</p>
     </section>
 
     <footer><a href="/docs/">Documentation</a><a href="/license">License</a><a href="/impressum">Impressum</a></footer>
@@ -313,7 +314,9 @@ async fn downloads_page() -> Html<&'static str> {
         const release = await response.json();
         if (release.channel !== 'stable' || release.platform !== target.platform || !safeSegment(release.version) ||
             !release.artifact || !Number.isSafeInteger(release.artifact.size) || release.artifact.size <= 0 ||
-            typeof release.artifact.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(release.artifact.sha256)) {
+            typeof release.artifact.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(release.artifact.sha256) ||
+            !release.setup || !Number.isSafeInteger(release.setup.size) || release.setup.size <= 0 ||
+            typeof release.setup.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(release.setup.sha256)) {
           throw new Error('The published release metadata is incomplete or invalid. Please contact Vapor support.');
         }
         const expectedPath = `/api/updates/v1/vapor/releases/${release.version}/${target.platform}/vapor.tar.gz`;
@@ -321,13 +324,20 @@ async fn downloads_page() -> Html<&'static str> {
         if (artifactUrl.origin !== window.location.origin || artifactUrl.pathname !== expectedPath || artifactUrl.search || artifactUrl.hash) {
           throw new Error('The published download link is invalid. Please contact Vapor support.');
         }
+        const setupName = target.platform === 'windows-x86_64' ? 'vapor-setup.exe' : 'vapor-setup';
+        const expectedSetupPath = `/api/updates/v1/vapor/releases/${release.version}/${target.platform}/${setupName}`;
+        const setupUrl = new URL(release.setup.url, window.location.origin);
+        if (setupUrl.origin !== window.location.origin || setupUrl.pathname !== expectedSetupPath || setupUrl.search || setupUrl.hash) {
+          throw new Error('The published setup download is invalid. Please contact Vapor support.');
+        }
         const link = document.getElementById(`${target.key}-download`);
-        link.href = artifactUrl.href;
-        link.textContent = `Download ${release.version}`;
+        link.href = setupUrl.href;
+        link.textContent = `Download Vapor Setup ${release.version}`;
         link.hidden = false;
-        status.textContent = `Stable release ${release.version} is available.`;
-        document.getElementById(`${target.key}-integrity`).textContent = `${release.artifact.size.toLocaleString()} bytes · SHA-256 ${release.artifact.sha256}`;
+        status.textContent = `Vapor Setup ${release.version} is available.`;
+        document.getElementById(`${target.key}-integrity`).textContent = `Setup: ${release.setup.size.toLocaleString()} bytes · SHA-256 ${release.setup.sha256}`;
         const links = document.getElementById(`${target.key}-links`);
+        addLink(links, artifactUrl.href, 'Manual application archive');
         addLink(links, `/api/updates/v1/vapor/releases/${release.version}/${target.platform}/manifest.json`, 'Signed manifest');
         addLink(links, `/api/updates/v1/vapor/releases/${release.version}/${target.platform}/manifest.json.sig`, 'Detached signature');
         if (typeof release.release_notes_url === 'string') {
