@@ -7,6 +7,7 @@ Initial implementation uses Axum/Tokio.
 ## Responsibility
 
 - landing page;
+- standalone Vapor download page, reading latest and stable history from Artifact;
 - product and project overview;
 - license/product text;
 - Impressum/legal contact page;
@@ -14,11 +15,17 @@ Initial implementation uses Axum/Tokio.
 
 ## Route
 
-Expected public route behind the root reverse proxy:
+Expected public routes behind the root reverse proxy:
 
 ```text
 /
+/downloads
 ```
+
+The Homepage stays stateless. Its download page reads the latest stable
+manifest and immutable stable version index from `Vapor-Artifact-Server` at
+request time; the page does not need a deploy when a new stable release is
+published.
 
 ## State
 

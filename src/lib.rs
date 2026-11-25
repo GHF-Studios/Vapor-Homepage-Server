@@ -2,11 +2,8 @@ use axum::response::Html;
 use axum::routing::get;
 use axum::Router;
 
-mod dashboard;
-
 pub fn app_router() -> Router {
     Router::new()
-        .merge(dashboard::router())
         .route("/", get(home_page))
         .route("/index.html", get(home_page))
         .route("/healthz", get(healthz))
@@ -31,57 +28,59 @@ async fn home_page() -> Html<&'static str> {
   <meta name="theme-color" content="#10161d">
   <title>Vapor · Game ecosystems, managed</title>
   <style>
-    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #10161d; color: #eef3f7; font-synthesis: none; }
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #101415; color: #eef2ef; font-synthesis: none; }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 54% -22%, #294346 0, #10161d 55%); }
-    a { color: #a9d8cb; }
-    a:focus-visible { outline: 2px solid #9fe1ce; outline-offset: 4px; border-radius: 3px; }
-    main { width: min(1080px, calc(100% - 40px)); margin: 0 auto; padding: 26px 0 32px; }
-    .topbar { display: flex; align-items: center; gap: 28px; min-height: 40px; }
-    .brand { margin-right: auto; color: #f0f5f7; font-size: 1.04rem; font-weight: 780; letter-spacing: .035em; text-decoration: none; }
-    .topbar nav { display: flex; align-items: center; gap: 22px; }
-    .topbar nav a, footer a { color: #b7c5cb; font-size: .9rem; text-decoration: none; }
+    body { margin: 0; min-height: 100vh; background: #101415; }
+    a { color: #a7d5c5; }
+    a:focus-visible { outline: 2px solid #9fe1ce; outline-offset: 4px; border-radius: 4px; }
+    main { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 24px 0 32px; }
+    .topbar { display: flex; align-items: center; gap: 24px; min-height: 40px; }
+    .brand { margin-right: auto; color: #eef2ef; font-size: 1rem; font-weight: 600; text-decoration: none; }
+    .topbar nav { display: flex; align-items: center; gap: 20px; }
+    .topbar nav a, footer a { color: #b8c2bd; font-size: .9rem; text-decoration: none; }
     .topbar nav a:hover, footer a:hover { color: #fff; }
-    .hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(230px, .75fr); align-items: center; gap: 52px; padding: clamp(64px, 11vw, 124px) 0 88px; }
-    .eyebrow { color: #9fe1ce; font-size: .76rem; font-weight: 750; letter-spacing: .17em; text-transform: uppercase; }
-    h1 { max-width: 730px; margin: 13px 0 19px; font-size: clamp(3rem, 8vw, 5.65rem); letter-spacing: -.065em; line-height: .96; }
-    .lead { max-width: 650px; margin: 0; color: #c2cfd4; font-size: clamp(1.05rem, 2vw, 1.22rem); line-height: 1.7; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(300px, .92fr); align-items: center; gap: 48px; padding: 88px 0 72px; }
+    .eyebrow { color: #b6c2bb; font-size: .84rem; font-weight: 500; }
+    h1 { max-width: 690px; margin: 12px 0 20px; font-size: clamp(2.7rem, 6.4vw, 4.6rem); font-weight: 500; letter-spacing: -.045em; line-height: 1.03; }
+    .lead { max-width: 640px; margin: 0; color: #bdc7c2; font-size: clamp(1rem, 1.8vw, 1.15rem); line-height: 1.6; }
     .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-top: 28px; }
-    .button { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; padding: 0 19px; border-radius: 7px; background: #9fe1ce; color: #10201d; font-weight: 760; text-decoration: none; }
-    .button:hover { background: #b8f0df; }
-    .secondary { font-size: .92rem; font-weight: 650; text-decoration: none; }
-    .orbit { position: relative; display: grid; min-height: 260px; place-items: center; }
-    .orbit::before, .orbit::after { position: absolute; content: ""; border: 1px solid rgba(159, 225, 206, .2); border-radius: 50%; }
-    .orbit::before { width: 244px; height: 244px; }
-    .orbit::after { width: 180px; height: 180px; }
-    .core { z-index: 1; display: grid; width: 94px; height: 94px; place-items: center; border: 1px solid rgba(159, 225, 206, .7); border-radius: 22px; background: linear-gradient(145deg, #284441, #18252a); color: #aaf0dc; font-size: 2rem; font-weight: 800; box-shadow: 0 0 70px rgba(91, 190, 161, .17); }
-    .orbit-label { position: absolute; z-index: 2; padding: 6px 10px; border: 1px solid #34464a; border-radius: 999px; background: #151f24; color: #c5d0d4; font-size: .72rem; font-weight: 650; }
-    .label-tools { top: 19px; left: calc(50% - 31px); }
-    .label-games { right: 2px; top: 45%; }
-    .label-content { bottom: 17px; left: calc(50% - 44px); }
-    .intro-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-    .card { min-height: 166px; padding: 21px; border: 1px solid #34434a; border-radius: 11px; background: rgba(20, 29, 35, .88); }
-    .card h2 { margin: 0 0 10px; font-size: 1rem; letter-spacing: -.015em; }
-    .card p { margin: 0; color: #b4c2c8; font-size: .91rem; line-height: 1.65; }
-    .local-note { display: grid; grid-template-columns: auto 1fr; gap: 15px; margin-top: 15px; padding: 20px 22px; border-left: 3px solid #9fe1ce; background: rgba(159, 225, 206, .06); }
-    .local-mark { color: #9fe1ce; font-size: 1.1rem; }
-    .local-note h2 { margin: 0 0 6px; font-size: .95rem; }
-    .local-note p { margin: 0; color: #b8c6cb; font-size: .88rem; line-height: 1.6; }
-    .bottom-cta { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 78px 0 58px; padding: 26px 28px; border: 1px solid #34434a; border-radius: 11px; background: rgba(20, 29, 35, .78); }
-    .bottom-cta h2 { margin: 0 0 5px; font-size: 1.2rem; }
-    .bottom-cta p { margin: 0; color: #aebdc3; font-size: .9rem; line-height: 1.5; }
-    footer { display: flex; flex-wrap: wrap; gap: 20px; padding: 18px 0 8px; border-top: 1px solid #2d3a40; }
-    footer .copyright { margin-right: auto; color: #73848b; font-size: .83rem; }
+    .button { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 0 16px; border: 1px solid #9fe1ce; border-radius: 8px; background: #9fe1ce; color: #13201b; font-weight: 600; text-decoration: none; }
+    .button:hover { background: #b2eadb; }
+    .secondary { font-size: .92rem; font-weight: 500; text-decoration: none; }
+    .mount-preview { padding: 20px; border: 1px solid #35413b; border-radius: 14px; background: #171c19; }
+    .mount-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #303a34; }
+    .mount-head p, .mount-head h2 { margin: 0; }
+    .mount-head p { color: #9daaa2; font-size: .8rem; }
+    .mount-head h2 { margin-top: 4px; font-size: 1.05rem; font-weight: 550; }
+    .mount-state { color: #a7d5c5; font-size: .78rem; white-space: nowrap; }
+    .manifest-row { display: flex; align-items: center; gap: 10px; margin: 16px 0 10px; padding: 10px 12px; border: 1px solid #35413b; border-radius: 8px; background: #1d2420; }
+    .manifest-mark { width: 8px; height: 8px; border-radius: 2px; background: #9fe1ce; }
+    .manifest-row code, .target-row code { color: #d3ddd7; font: 12px/1.4 ui-monospace, "Cascadia Code", monospace; }
+    .target-list { display: grid; gap: 6px; }
+    .target-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; padding: 0 12px; border: 1px solid #303a34; border-radius: 8px; }
+    .target-name { color: #b8c2bd; font-size: .84rem; }
+    .mount-foot { margin: 14px 0 0; color: #9daaa2; font-size: .8rem; line-height: 1.5; }
+    .intro-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .card { min-height: 148px; padding: 20px; border: 1px solid #303a34; border-radius: 12px; background: #171c19; }
+    .card h2 { margin: 0 0 8px; font-size: 1rem; font-weight: 550; }
+    .card p { margin: 0; color: #b8c2bd; font-size: .9rem; line-height: 1.55; }
+    .local-note { margin-top: 12px; padding: 16px 18px; border: 1px solid #303a34; border-radius: 10px; background: #151a17; }
+    .local-note h2 { margin: 0 0 4px; font-size: .94rem; font-weight: 550; }
+    .local-note p { margin: 0; color: #b8c2bd; font-size: .86rem; line-height: 1.55; }
+    .bottom-cta { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 40px 0 44px; padding: 20px 22px; border: 1px solid #303a34; border-radius: 12px; background: #171c19; }
+    .bottom-cta h2 { margin: 0 0 4px; font-size: 1.1rem; font-weight: 550; }
+    .bottom-cta p { margin: 0; color: #b8c2bd; font-size: .9rem; line-height: 1.5; }
+    footer { display: flex; flex-wrap: wrap; gap: 18px; padding: 16px 0 8px; border-top: 1px solid #303a34; }
+    footer .copyright { margin-right: auto; color: #9daaa2; font-size: .82rem; }
     @media (max-width: 720px) {
       .topbar { align-items: flex-start; flex-wrap: wrap; gap: 14px; }
       .topbar nav { width: 100%; justify-content: space-between; gap: 10px; }
-      .hero { grid-template-columns: 1fr; gap: 18px; padding: 70px 0 48px; }
-      .orbit { min-height: 200px; }
-      .orbit::before { width: 190px; height: 190px; }
-      .orbit::after { width: 140px; height: 140px; }
+      main { width: min(100% - 32px, 560px); }
+      .hero { grid-template-columns: 1fr; gap: 28px; padding: 56px 0 40px; }
       .intro-grid { grid-template-columns: 1fr; }
       .card { min-height: 0; }
-      .bottom-cta { align-items: flex-start; flex-direction: column; margin: 48px 0; }
+      .bottom-cta { align-items: flex-start; flex-direction: column; margin: 28px 0; }
+      .target-row { align-items: flex-start; flex-direction: column; justify-content: center; gap: 2px; padding: 8px 10px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
   </style>
@@ -100,42 +99,44 @@ async fn home_page() -> Html<&'static str> {
 
     <section class="hero" aria-labelledby="hero-title">
       <div>
-        <span class="eyebrow">One platform · many ecosystems</span>
-        <h1 id="hero-title">Your games.<br>One place to build.</h1>
-        <p class="lead">Vapor brings game ecosystems, content, and creator tools into one independent platform—so each project can manage its own way of installing, updating, and working with content.</p>
+        <span class="eyebrow">A standalone runtime for game ecosystems</span>
+        <h1 id="hero-title">Install the runtime.<br>Mount the ecosystem.</h1>
+        <p class="lead">Vapor installs and manages games, tools, and content. Each ecosystem defines its own packages and lifecycle; licensed game files stay on your machine.</p>
         <div class="actions">
-          <a class="button" href="/downloads">Get Vapor <span aria-hidden="true">&nbsp;→</span></a>
+          <a class="button" href="/downloads">Get Vapor</a>
           <a class="secondary" href="/docs/">Explore the documentation</a>
         </div>
       </div>
-      <div class="orbit" aria-hidden="true">
-        <span class="orbit-label label-tools">TOOLS</span>
-        <span class="orbit-label label-games">GAMES</span>
-        <span class="orbit-label label-content">CONTENT</span>
-        <div class="core">V</div>
+      <div class="mount-preview" aria-label="Example of the Loo Cast Steam product mount">
+        <div class="mount-head"><div><p>Steam product mount</p><h2>Loo Cast Packagepack</h2></div><span class="mount-state">First-party</span></div>
+        <div class="manifest-row"><span class="manifest-mark" aria-hidden="true"></span><code>Packagepack.vapor.toml</code></div>
+        <div class="target-list">
+          <div class="target-row"><span class="target-name">Linux · x86_64</span><code>loo-cast-packagepack</code></div>
+          <div class="target-row"><span class="target-name">Windows · x86_64</span><code>loo-cast-packagepack.exe</code></div>
+        </div>
+        <p class="mount-foot">Vapor and its tools remain in Vapor home, separate from the Steam product.</p>
       </div>
     </section>
 
     <section class="intro-grid" aria-label="What Vapor does">
       <article class="card">
-        <h2>A home for ecosystems</h2>
-        <p>Engines and games can define how their own content is found, mounted, and managed, while sharing one Vapor runtime.</p>
+        <h2>Use supported games</h2>
+        <p>Install Vapor once, then add games you own and manage the content their ecosystem supports.</p>
       </article>
       <article class="card">
-        <h2>Built for players and creators</h2>
-        <p>Use supported content as a player, or install the developer tools for the ecosystems you work on.</p>
+        <h2>Build across targets</h2>
+        <p>The Developer setup includes Vapor’s pinned Rust toolchain and the Linux and Windows build tools.</p>
       </article>
       <article class="card">
-        <h2>Clear ownership</h2>
-        <p>Each ecosystem controls its own packages and lifecycle. Vapor does not turn every game into the same kind of mod.</p>
+        <h2>Keep ownership clear</h2>
+        <p>Games supply their licensed files locally. Vapor manages the runtime and only distributes authorized content.</p>
       </article>
     </section>
 
     <aside class="local-note" aria-labelledby="local-title">
-      <span class="local-mark" aria-hidden="true">◆</span>
       <div>
         <h2 id="local-title">Your game files stay yours</h2>
-        <p>Commercial game files must come from your own legitimate purchase or installation; they are never included in Vapor downloads. Vapor only distributes runtime files and authorized ecosystem content.</p>
+        <p>Commercial game files come from your own installation. They are not included in Vapor downloads or hosted as community content.</p>
       </div>
     </aside>
 
@@ -144,7 +145,7 @@ async fn home_page() -> Html<&'static str> {
         <h2 id="start-title">Start with Vapor</h2>
         <p>Choose your setup and see current download availability for Windows and Linux.</p>
       </div>
-      <a class="button" href="/downloads">View setup options <span aria-hidden="true">&nbsp;→</span></a>
+      <a class="button" href="/downloads">View setup options</a>
     </section>
 
     <footer>
@@ -174,43 +175,48 @@ async fn downloads_page() -> Html<&'static str> {
   <style>
     :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #10161d; color: #eef3f7; font-synthesis: none; }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 50% -24%, #263b3d 0, #10161d 54%); }
+    body { margin: 0; min-height: 100vh; background: #101415; }
     a { color: #a9d8cb; }
     a:focus-visible, button:focus-visible { outline: 2px solid #9fe1ce; outline-offset: 3px; }
     main { width: min(1040px, calc(100% - 36px)); margin: 0 auto; padding: 28px 0 64px; }
     nav { display: flex; align-items: center; gap: 22px; padding-bottom: 54px; }
-    .brand { margin-right: auto; color: #eef3f7; font-weight: 750; letter-spacing: .02em; text-decoration: none; }
+    .brand { margin-right: auto; color: #eef3f7; font-weight: 500; text-decoration: none; }
     nav a:not(.brand) { color: #bac7ce; text-decoration: none; font-size: .94rem; }
     nav a:hover { color: #fff; }
     .hero { max-width: 760px; margin-bottom: 38px; }
-    .eyebrow { color: #9fe1ce; font-size: .78rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
-    h1 { margin: 12px 0 16px; font-size: clamp(2.8rem, 8vw, 5.2rem); letter-spacing: -.06em; line-height: .98; }
+    .eyebrow { color: #b8c2bd; font-size: .86rem; font-weight: 500; }
+    h1 { margin: 12px 0 16px; font-size: clamp(2.8rem, 8vw, 5.2rem); font-weight: 500; letter-spacing: -.04em; line-height: 1.02; }
     h2 { margin: 0; font-size: 1.05rem; letter-spacing: -.01em; }
     h3 { margin: 0 0 8px; font-size: .98rem; }
     .lead { max-width: 700px; margin: 0; color: #c3cfd4; font-size: 1.12rem; line-height: 1.65; }
     .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 0 0 14px; }
     .section-heading p { margin: 0; color: #91a1a8; font-size: .86rem; }
-    .release-grid, .setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-    .release, .setup, .steps { border: 1px solid #34434a; border-radius: 12px; background: rgba(20, 29, 35, .91); }
-    .release { min-height: 200px; padding: 20px; }
-    .release-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-    .platform { color: #92a3aa; font-size: .78rem; font-weight: 650; }
+    .release-grid, .setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .release, .setup, .steps { border: 1px solid #303a34; border-radius: 10px; background: #171c19; }
+    .release { min-height: 168px; padding: 16px; }
+    .release-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .platform { color: #a1aaa5; font-size: .8rem; font-weight: 500; }
     .release-status { min-height: 42px; margin: 0 0 14px; color: #bbc8ce; line-height: 1.5; }
-    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 16px; border: 0; border-radius: 7px; background: #9fe1ce; color: #10201d; font-weight: 750; text-decoration: none; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; border: 1px solid #9fe1ce; border-radius: 8px; background: #9fe1ce; color: #10201d; font-weight: 500; text-decoration: none; }
     .button:hover { background: #b8f0df; }
     .button[hidden] { display: none; }
     .release-details { margin-top: 12px; color: #94a5ac; font-size: .82rem; }
     .release-details summary { width: fit-content; cursor: pointer; }
     .release-details p { overflow-wrap: anywhere; line-height: 1.5; }
     .release-details a { margin-right: 12px; }
-    .setup-section, .start-section { margin-top: 38px; }
-    .setup { padding: 20px; }
+    .release-history { margin-top: 16px; padding-top: 14px; border-top: 1px solid #303a34; }
+    .release-history summary { width: fit-content; cursor: pointer; color: #dfe8e4; font-size: .88rem; }
+    .release-history ul { display: grid; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+    .release-history li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+    .history-links { color: #94a5ac; font-size: .8rem; }
+    .setup-section, .start-section { margin-top: 32px; }
+    .setup { padding: 16px; }
     .setup p, .steps p { margin: 0; color: #b9c6cc; font-size: .92rem; line-height: 1.6; }
-    .badge { display: inline-flex; margin-bottom: 12px; padding: 4px 8px; border: 1px solid #40565a; border-radius: 999px; color: #a8ddd0; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .badge { display: inline-flex; margin-bottom: 8px; color: #b8c2bd; font-size: .82rem; font-weight: 500; }
     .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; overflow: hidden; }
-    .step { padding: 20px; }
+    .step { padding: 16px; }
     .step + .step { border-left: 1px solid #34434a; }
-    .step-number { display: block; margin-bottom: 12px; color: #9fe1ce; font-size: .76rem; font-weight: 700; letter-spacing: .1em; }
+    .step-number { display: block; margin-bottom: 8px; color: #b8c2bd; font-size: .8rem; font-weight: 500; }
     .step p { color: #b9c6cc; font-size: .9rem; line-height: 1.6; }
     .notice { margin-top: 18px; padding: 14px 16px; border-left: 3px solid #9fe1ce; background: rgba(159, 225, 206, .07); color: #bfccd1; font-size: .9rem; line-height: 1.55; }
     footer { display: flex; gap: 18px; margin-top: 48px; color: #91a1a8; font-size: .88rem; }
@@ -242,6 +248,10 @@ async fn downloads_page() -> Html<&'static str> {
           <div class="release-head"><h2 id="windows-heading">Windows</h2><span class="platform">x86_64</span></div>
           <p class="release-status" id="windows-status" role="status" aria-live="polite">Checking the stable release feed…</p>
           <a id="windows-download" class="button" hidden>Download Vapor</a>
+          <details class="release-history" id="windows-history" hidden>
+            <summary>Previous stable releases</summary>
+            <ul id="windows-history-list"></ul>
+          </details>
           <details class="release-details" id="windows-details" hidden>
             <summary>Release verification details</summary>
             <p id="windows-integrity"></p>
@@ -252,6 +262,10 @@ async fn downloads_page() -> Html<&'static str> {
           <div class="release-head"><h2 id="linux-heading">Linux</h2><span class="platform">x86_64</span></div>
           <p class="release-status" id="linux-status" role="status" aria-live="polite">Checking the stable release feed…</p>
           <a id="linux-download" class="button" hidden>Download Vapor</a>
+          <details class="release-history" id="linux-history" hidden>
+            <summary>Previous stable releases</summary>
+            <ul id="linux-history-list"></ul>
+          </details>
           <details class="release-details" id="linux-details" hidden>
             <summary>Release verification details</summary>
             <p id="linux-integrity"></p>
@@ -259,7 +273,7 @@ async fn downloads_page() -> Html<&'static str> {
           </details>
         </article>
       </div>
-      <p class="notice">A download appears only when that platform has a complete release. The current Artifact bundle is an application archive; a guided installer and one-click update flow are still being completed. Do not treat an archive as an installer.</p>
+      <p class="notice">Download the standalone setup app to install or update Vapor. The separate application archive is available for advanced/manual use.</p>
     </section>
 
     <section class="setup-section" aria-labelledby="setup-heading">
@@ -281,11 +295,12 @@ async fn downloads_page() -> Html<&'static str> {
     <section class="start-section" aria-labelledby="start-heading">
       <div class="section-heading"><h2 id="start-heading">After downloading</h2><p>What happens next</p></div>
       <div class="steps">
-        <article class="step"><span class="step-number">01 · DOWNLOAD</span><h3>Choose the right next step</h3><p>The download above is an application archive, not an installer. Use it only if you already know how to work with application archives; otherwise, wait for Vapor’s guided installer. Vapor’s install, updates, and removal are independent of Steam.</p></article>
+        <article class="step"><span class="step-number">01 · DOWNLOAD</span><h3>Run Vapor Setup</h3><p>Vapor Setup installs and updates Vapor in its own user-data location. Steam is not required.</p></article>
         <article class="step"><span class="step-number">02 · CHOOSE</span><h3>Pick Player or Developer</h3><p>Player is for using games and content. When Developer setup is available, it will install the managed tools needed to work on ecosystems.</p></article>
         <article class="step"><span class="step-number">03 · ADD A GAME</span><h3>Connect a local game install</h3><p>Vapor does not distribute Mad Max or Loo Cast game files. You must acquire those products separately; Vapor uses local files and does not upload them.</p></article>
       </div>
       <p class="notice">Loo Cast’s first-party products are intended to come from its local Steam depot. Mad Max is an external game that must already be installed locally. Neither game’s files are part of a Vapor download or release feed.</p>
+      <p class="notice">Linux setup: open your Downloads folder in a terminal, run <code>chmod +x ./vapor-setup</code>, then run <code>./vapor-setup</code>.</p>
     </section>
 
     <footer><a href="/docs/">Documentation</a><a href="/license">License</a><a href="/impressum">Impressum</a></footer>
@@ -303,6 +318,32 @@ async fn downloads_page() -> Html<&'static str> {
       link.textContent = label;
       parent.append(link);
     };
+    async function loadReleaseHistory(target, latestVersion) {
+      try {
+        const response = await fetch(`/api/updates/v1/vapor/stable/${target.platform}/versions.json`, {cache: 'no-store'});
+        if (!response.ok) return;
+        const history = await response.json();
+        if (history.channel !== 'stable' || history.platform !== target.platform || !Array.isArray(history.versions)) return;
+        const versions = [...new Set(history.versions)].filter(version =>
+          safeSegment(version) && /^\d+\.\d+\.\d+(?:\+[A-Za-z0-9.-]+)?$/.test(version) && version !== latestVersion);
+        const list = document.getElementById(`${target.key}-history-list`);
+        for (const version of versions) {
+          const setupName = target.platform === 'windows-x86_64' ? 'vapor-setup.exe' : 'vapor-setup';
+          const releaseBase = `/api/updates/v1/vapor/releases/${version}/${target.platform}`;
+          const item = document.createElement('li');
+          addLink(item, `${releaseBase}/${setupName}`, `Vapor ${version}`);
+          const links = document.createElement('span');
+          links.className = 'history-links';
+          addLink(links, `${releaseBase}/manifest.json`, 'manifest');
+          addLink(links, `${releaseBase}/manifest.json.sig`, 'signature');
+          item.append(links);
+          list.append(item);
+        }
+        document.getElementById(`${target.key}-history`).hidden = list.childElementCount === 0;
+      } catch {
+        // A history outage must not hide or delay the current stable download.
+      }
+    }
     async function loadRelease(target) {
       const status = document.getElementById(`${target.key}-status`);
       try {
@@ -312,7 +353,9 @@ async fn downloads_page() -> Html<&'static str> {
         const release = await response.json();
         if (release.channel !== 'stable' || release.platform !== target.platform || !safeSegment(release.version) ||
             !release.artifact || !Number.isSafeInteger(release.artifact.size) || release.artifact.size <= 0 ||
-            typeof release.artifact.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(release.artifact.sha256)) {
+            typeof release.artifact.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(release.artifact.sha256) ||
+            !release.setup || !Number.isSafeInteger(release.setup.size) || release.setup.size <= 0 ||
+            typeof release.setup.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(release.setup.sha256)) {
           throw new Error('The published release metadata is incomplete or invalid. Please contact Vapor support.');
         }
         const expectedPath = `/api/updates/v1/vapor/releases/${release.version}/${target.platform}/vapor.tar.gz`;
@@ -320,13 +363,20 @@ async fn downloads_page() -> Html<&'static str> {
         if (artifactUrl.origin !== window.location.origin || artifactUrl.pathname !== expectedPath || artifactUrl.search || artifactUrl.hash) {
           throw new Error('The published download link is invalid. Please contact Vapor support.');
         }
+        const setupName = target.platform === 'windows-x86_64' ? 'vapor-setup.exe' : 'vapor-setup';
+        const expectedSetupPath = `/api/updates/v1/vapor/releases/${release.version}/${target.platform}/${setupName}`;
+        const setupUrl = new URL(release.setup.url, window.location.origin);
+        if (setupUrl.origin !== window.location.origin || setupUrl.pathname !== expectedSetupPath || setupUrl.search || setupUrl.hash) {
+          throw new Error('The published setup download is invalid. Please contact Vapor support.');
+        }
         const link = document.getElementById(`${target.key}-download`);
-        link.href = artifactUrl.href;
-        link.textContent = `Download ${release.version}`;
+        link.href = setupUrl.href;
+        link.textContent = `Download Vapor Setup ${release.version}`;
         link.hidden = false;
-        status.textContent = `Stable release ${release.version} is available.`;
-        document.getElementById(`${target.key}-integrity`).textContent = `${release.artifact.size.toLocaleString()} bytes · SHA-256 ${release.artifact.sha256}`;
+        status.textContent = `Vapor Setup ${release.version} is available.`;
+        document.getElementById(`${target.key}-integrity`).textContent = `Setup: ${release.setup.size.toLocaleString()} bytes · SHA-256 ${release.setup.sha256}`;
         const links = document.getElementById(`${target.key}-links`);
+        addLink(links, artifactUrl.href, 'Manual application archive');
         addLink(links, `/api/updates/v1/vapor/releases/${release.version}/${target.platform}/manifest.json`, 'Signed manifest');
         addLink(links, `/api/updates/v1/vapor/releases/${release.version}/${target.platform}/manifest.json.sig`, 'Detached signature');
         if (typeof release.release_notes_url === 'string') {
@@ -334,6 +384,7 @@ async fn downloads_page() -> Html<&'static str> {
           if (notesUrl.protocol === 'https:' || notesUrl.origin === window.location.origin) addLink(links, notesUrl.href, 'Release notes');
         }
         document.getElementById(`${target.key}-details`).hidden = false;
+        await loadReleaseHistory(target, release.version);
       } catch (error) {
         status.textContent = error instanceof Error ? error.message : 'Release information is temporarily unavailable.';
       }
@@ -396,5 +447,52 @@ mod tests {
             .unwrap();
         let html = std::str::from_utf8(&body).unwrap();
         assert!(html.contains("href=\"/operator/login\">Operator sign-in</a>"));
+    }
+
+    #[tokio::test]
+    async fn homepage_explains_the_runtime_and_uses_a_product_specific_mount_preview() {
+        let response = app_router()
+            .oneshot(Request::get("/").body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+        let body = axum::body::to_bytes(response.into_body(), 16 * 1024)
+            .await
+            .unwrap();
+        let html = std::str::from_utf8(&body).unwrap();
+
+        assert!(html.contains("Vapor installs and manages games, tools, and content"));
+        assert!(html.contains("Packagepack.vapor.toml"));
+        assert!(html.contains("Steam product mount"));
+        assert!(html.contains("class=\"mount-preview\""));
+        assert!(!html.contains("radial-gradient"));
+        assert!(!html.contains("box-shadow: 0 0 70px"));
+    }
+
+    #[tokio::test]
+    async fn downloads_page_uses_quiet_surfaces_and_sentence_case_labels() {
+        let response = app_router()
+            .oneshot(Request::get("/downloads").body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+        let body = axum::body::to_bytes(response.into_body(), 64 * 1024)
+            .await
+            .unwrap();
+        let html = std::str::from_utf8(&body).unwrap();
+
+        assert!(!html.contains("radial-gradient"));
+        assert!(!html.contains("text-transform: uppercase"));
+        assert!(!html.contains("font-weight: 750"));
+        assert!(html.contains("Choose your platform"));
+    }
+
+    #[tokio::test]
+    async fn account_project_pages_are_not_served_by_the_public_homepage_service() {
+        for path in ["/dashboard", "/projects/ghf-studios/loo-cast"] {
+            let response = app_router()
+                .oneshot(Request::get(path).body(Body::empty()).unwrap())
+                .await
+                .unwrap();
+            assert_eq!(response.status(), axum::http::StatusCode::NOT_FOUND, "{path}");
+        }
     }
 }
