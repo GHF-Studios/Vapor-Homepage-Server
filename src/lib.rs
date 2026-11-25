@@ -204,6 +204,11 @@ async fn downloads_page() -> Html<&'static str> {
     .release-details summary { width: fit-content; cursor: pointer; }
     .release-details p { overflow-wrap: anywhere; line-height: 1.5; }
     .release-details a { margin-right: 12px; }
+    .release-history { margin-top: 16px; padding-top: 14px; border-top: 1px solid #303a34; }
+    .release-history summary { width: fit-content; cursor: pointer; color: #dfe8e4; font-size: .88rem; }
+    .release-history ul { display: grid; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+    .release-history li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+    .history-links { color: #94a5ac; font-size: .8rem; }
     .setup-section, .start-section { margin-top: 32px; }
     .setup { padding: 16px; }
     .setup p, .steps p { margin: 0; color: #b9c6cc; font-size: .92rem; line-height: 1.6; }
@@ -243,6 +248,10 @@ async fn downloads_page() -> Html<&'static str> {
           <div class="release-head"><h2 id="windows-heading">Windows</h2><span class="platform">x86_64</span></div>
           <p class="release-status" id="windows-status" role="status" aria-live="polite">Checking the stable release feed…</p>
           <a id="windows-download" class="button" hidden>Download Vapor</a>
+          <details class="release-history" id="windows-history" hidden>
+            <summary>Previous stable releases</summary>
+            <ul id="windows-history-list"></ul>
+          </details>
           <details class="release-details" id="windows-details" hidden>
             <summary>Release verification details</summary>
             <p id="windows-integrity"></p>
@@ -253,6 +262,10 @@ async fn downloads_page() -> Html<&'static str> {
           <div class="release-head"><h2 id="linux-heading">Linux</h2><span class="platform">x86_64</span></div>
           <p class="release-status" id="linux-status" role="status" aria-live="polite">Checking the stable release feed…</p>
           <a id="linux-download" class="button" hidden>Download Vapor</a>
+          <details class="release-history" id="linux-history" hidden>
+            <summary>Previous stable releases</summary>
+            <ul id="linux-history-list"></ul>
+          </details>
           <details class="release-details" id="linux-details" hidden>
             <summary>Release verification details</summary>
             <p id="linux-integrity"></p>
@@ -305,6 +318,32 @@ async fn downloads_page() -> Html<&'static str> {
       link.textContent = label;
       parent.append(link);
     };
+    async function loadReleaseHistory(target, latestVersion) {
+      try {
+        const response = await fetch(`/api/updates/v1/vapor/stable/${target.platform}/versions.json`, {cache: 'no-store'});
+        if (!response.ok) return;
+        const history = await response.json();
+        if (history.channel !== 'stable' || history.platform !== target.platform || !Array.isArray(history.versions)) return;
+        const versions = [...new Set(history.versions)].filter(version =>
+          safeSegment(version) && /^\d+\.\d+\.\d+(?:\+[A-Za-z0-9.-]+)?$/.test(version) && version !== latestVersion);
+        const list = document.getElementById(`${target.key}-history-list`);
+        for (const version of versions) {
+          const setupName = target.platform === 'windows-x86_64' ? 'vapor-setup.exe' : 'vapor-setup';
+          const releaseBase = `/api/updates/v1/vapor/releases/${version}/${target.platform}`;
+          const item = document.createElement('li');
+          addLink(item, `${releaseBase}/${setupName}`, `Vapor ${version}`);
+          const links = document.createElement('span');
+          links.className = 'history-links';
+          addLink(links, `${releaseBase}/manifest.json`, 'manifest');
+          addLink(links, `${releaseBase}/manifest.json.sig`, 'signature');
+          item.append(links);
+          list.append(item);
+        }
+        document.getElementById(`${target.key}-history`).hidden = list.childElementCount === 0;
+      } catch {
+        // A history outage must not hide or delay the current stable download.
+      }
+    }
     async function loadRelease(target) {
       const status = document.getElementById(`${target.key}-status`);
       try {
@@ -345,6 +384,7 @@ async fn downloads_page() -> Html<&'static str> {
           if (notesUrl.protocol === 'https:' || notesUrl.origin === window.location.origin) addLink(links, notesUrl.href, 'Release notes');
         }
         document.getElementById(`${target.key}-details`).hidden = false;
+        await loadReleaseHistory(target, release.version);
       } catch (error) {
         status.textContent = error instanceof Error ? error.message : 'Release information is temporarily unavailable.';
       }
