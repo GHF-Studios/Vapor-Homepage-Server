@@ -277,7 +277,7 @@ async fn downloads_page() -> Html<&'static str> {
     </section>
 
     <section class="setup-section" aria-labelledby="setup-heading">
-      <div class="section-heading"><h2 id="setup-heading">Choose your setup</h2><p>Vapor’s planned setup offers two roles with different local tooling.</p></div>
+      <div class="section-heading"><h2 id="setup-heading">Choose your setup</h2><p>Vapor Setup offers two roles with different local tooling.</p></div>
       <div class="setup-grid">
         <article class="setup">
           <span class="badge">Player</span>
@@ -287,7 +287,7 @@ async fn downloads_page() -> Html<&'static str> {
         <article class="setup">
           <span class="badge">Developer</span>
           <h3>Build and work on ecosystems</h3>
-          <p>When Developer setup ships, it is intended to include the development toolchain and cross-platform build tools as required parts of the role, not separate optional installs.</p>
+          <p>Developer setup installs the Vapor-managed development toolchain and cross-platform build tools needed to create content and work on Vapor.</p>
         </article>
       </div>
     </section>
@@ -296,7 +296,7 @@ async fn downloads_page() -> Html<&'static str> {
       <div class="section-heading"><h2 id="start-heading">After downloading</h2><p>What happens next</p></div>
       <div class="steps">
         <article class="step"><span class="step-number">01 · DOWNLOAD</span><h3>Run Vapor Setup</h3><p>Vapor Setup installs and updates Vapor in its own user-data location. Steam is not required.</p></article>
-        <article class="step"><span class="step-number">02 · CHOOSE</span><h3>Pick Player or Developer</h3><p>Player is for using games and content. When Developer setup is available, it will install the managed tools needed to work on ecosystems.</p></article>
+        <article class="step"><span class="step-number">02 · CHOOSE</span><h3>Pick Player or Developer</h3><p>Player is for using games and content. Developer setup installs the managed tools needed to work on ecosystems.</p></article>
         <article class="step"><span class="step-number">03 · ADD A GAME</span><h3>Connect a local game install</h3><p>Vapor does not distribute Mad Max or Loo Cast game files. You must acquire those products separately; Vapor uses local files and does not upload them.</p></article>
       </div>
       <p class="notice">Loo Cast’s first-party products are intended to come from its local Steam depot. Mad Max is an external game that must already be installed locally. Neither game’s files are part of a Vapor download or release feed.</p>
@@ -325,7 +325,7 @@ async fn downloads_page() -> Html<&'static str> {
         const history = await response.json();
         if (history.channel !== 'stable' || history.platform !== target.platform || !Array.isArray(history.versions)) return;
         const versions = [...new Set(history.versions)].filter(version =>
-          safeSegment(version) && /^\d+\.\d+\.\d+(?:\+[A-Za-z0-9.-]+)?$/.test(version) && version !== latestVersion);
+          safeSegment(version) && /^\d+\.\d+\.\d+(?:-pre-alpha-\d+\.\d+\.\d+)?(?:\+[A-Za-z0-9.-]+)?$/.test(version) && version !== latestVersion);
         const list = document.getElementById(`${target.key}-history-list`);
         for (const version of versions) {
           const setupName = target.platform === 'windows-x86_64' ? 'vapor-setup.exe' : 'vapor-setup';
