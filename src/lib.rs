@@ -325,7 +325,7 @@ async fn downloads_page() -> Html<&'static str> {
         const history = await response.json();
         if (history.channel !== 'stable' || history.platform !== target.platform || !Array.isArray(history.versions)) return;
         const versions = [...new Set(history.versions)].filter(version =>
-          safeSegment(version) && /^\d+\.\d+\.\d+(?:-pre-alpha-\d+\.\d+\.\d+)?(?:\+[A-Za-z0-9.-]+)?$/.test(version) && version !== latestVersion);
+          safeSegment(version) && /^(?:(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:\+[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*)?|0\.5\.0-pre-alpha-(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))$/.test(version) && version !== latestVersion);
         const list = document.getElementById(`${target.key}-history-list`);
         for (const version of versions) {
           const setupName = target.platform === 'windows-x86_64' ? 'vapor-setup.exe' : 'vapor-setup';
