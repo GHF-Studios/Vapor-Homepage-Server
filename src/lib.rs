@@ -351,7 +351,8 @@ async fn downloads_page() -> Html<&'static str> {
         if (response.status === 404) throw new Error(`No stable ${target.label} release has been published yet.`);
         if (!response.ok) throw new Error('Release information is temporarily unavailable. Please try again later.');
         const release = await response.json();
-        if (release.channel !== 'stable' || release.platform !== target.platform || !safeSegment(release.version) ||
+        if ((release.schema !== 1 && release.schema !== 2) ||
+            release.channel !== 'stable' || release.platform !== target.platform || !safeSegment(release.version) ||
             !release.artifact || !Number.isSafeInteger(release.artifact.size) || release.artifact.size <= 0 ||
             typeof release.artifact.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(release.artifact.sha256) ||
             !release.setup || !Number.isSafeInteger(release.setup.size) || release.setup.size <= 0 ||
@@ -382,6 +383,39 @@ async fn downloads_page() -> Html<&'static str> {
         if (typeof release.release_notes_url === 'string') {
           const notesUrl = new URL(release.release_notes_url, window.location.origin);
           if (notesUrl.protocol === 'https:' || notesUrl.origin === window.location.origin) addLink(links, notesUrl.href, 'Release notes');
+        }
+        if (release.schema === 1 && release.managed_git !== undefined) {
+          throw new Error('The release contains unsupported managed Git metadata. Please contact Vapor support.');
+        }
+        if (release.schema === 2) {
+          const git = release.managed_git;
+          if (!git || git.platform !== target.platform || !safeSegment(git.version) ||
+              !/^\d+\.\d+\.\d+$/.test(git.version)) {
+            throw new Error('The managed Git release metadata is incomplete or invalid. Please contact Vapor support.');
+          }
+          const gitAssets = [
+            ['artifact', 'git.tar.gz', 'Managed Git binary', 2 * 1024 ** 3],
+            ['source', 'git-source.tar.gz', 'Managed Git corresponding source', 8 * 1024 ** 3],
+            ['notices', 'git-notices.tar.gz', 'Managed Git notices and inventory', 64 * 1024 ** 2]
+          ];
+          const gitRecords = [];
+          for (const [field, filename, label, maximumSize] of gitAssets) {
+            const record = git[field];
+            const expected = `/api/updates/v1/vapor/releases/${release.version}/${target.platform}/${filename}`;
+            const assetUrl = record && typeof record.url === 'string' ? new URL(record.url, window.location.origin) : null;
+            if (!record || !Number.isSafeInteger(record.size) || record.size <= 0 || record.size > maximumSize ||
+                typeof record.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(record.sha256) ||
+                !assetUrl || assetUrl.origin !== window.location.origin || assetUrl.pathname !== expected || assetUrl.search || assetUrl.hash) {
+              throw new Error(`The ${label.toLowerCase()} link is invalid. Please contact Vapor support.`);
+            }
+            gitRecords.push({url: assetUrl.href, label, size: record.size, sha256: record.sha256});
+          }
+          const gitSummary = document.createElement('p');
+          gitSummary.textContent = `Developer Git ${git.version} for ${target.platform}; payloads are separate from Player setup.`;
+          links.append(gitSummary);
+          for (const record of gitRecords) {
+            addLink(links, record.url, `${record.label} (${record.size.toLocaleString()} bytes · SHA-256 ${record.sha256})`);
+          }
         }
         document.getElementById(`${target.key}-details`).hidden = false;
         await loadReleaseHistory(target, release.version);
